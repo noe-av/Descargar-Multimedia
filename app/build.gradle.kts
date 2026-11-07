@@ -1,0 +1,85 @@
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
+}
+
+android {
+    namespace = "com.descargarmultimedia.app"
+    compileSdk = 35
+
+    defaultConfig {
+        applicationId = "com.descargarmultimedia.app"
+        minSdk = 30 // Android 11
+        targetSdk = 35
+        versionCode = 1
+        versionName = "1.0.0"
+
+        // Solo arm64: cubre prácticamente todos los celulares con Android 11+
+        // y reduce mucho el tamaño (yt-dlp trae Python y FFmpeg dentro).
+        ndk {
+            abiFilters.add("arm64-v8a")
+        }
+    }
+
+    // Llave fija incluida en el repositorio: así cada APK nuevo se instala
+    // encima del anterior sin desinstalar. Es solo para uso personal.
+    signingConfigs {
+        create("shared") {
+            storeFile = rootProject.file("keystore/descargar-multimedia.jks")
+            storePassword = "descargarmultimedia"
+            keyAlias = "descargarmultimedia"
+            keyPassword = "descargarmultimedia"
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("shared")
+        }
+        release {
+            isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("shared")
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+
+    buildFeatures {
+        compose = true
+    }
+
+    packaging {
+        jniLibs {
+            // Requerido por youtubedl-android: Python y FFmpeg se ejecutan
+            // como binarios extraídos en el almacenamiento de la app.
+            useLegacyPackaging = true
+        }
+    }
+}
+
+dependencies {
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.icons.core)
+
+    implementation(libs.kotlinx.coroutines.android)
+
+    implementation(libs.youtubedl.library)
+    implementation(libs.youtubedl.ffmpeg)
+
+    testImplementation(libs.junit)
+}

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Descargar Multimedia</string>
+
+    <!-- Notificaciones -->
+    <string name="channel_progress_name">Progreso de descargas</string>
+    <string name="channel_done_name">Descargas terminadas</string>
+    <string name="notif_preparing">Preparando descarga…</string>
+    <string name="notif_downloading">Descargando %1$d%%</string>
+    <string name="notif_downloading_eta">Descargando %1$d%% · %2$s restantes</string>
+    <string name="notif_processing">Procesando…</string>
+    <string name="notif_queued_more">%1$d en cola</string>
+    <string name="notif_cancel">Cancelar</string>
+    <string name="notif_done_title">Descarga completada</string>
+    <string name="notif_failed_title">Error en la descarga</string>
+    <string name="notif_failed_generic">No se pudo descargar</string>
+
+    <!-- Ventana emergente al compartir -->
+    <string name="share_title">Descargar</string>
+    <string name="share_music">Música</string>
+    <string name="share_video">Video</string>
+    <string name="share_cancel">Cancelar</string>
+    <string name="share_close">Cerrar</string>
+    <string name="share_no_link">No se encontró un enlace en lo que compartiste.</string>
+    <string name="share_added">Descarga añadida a la cola</string>
+
+    <!-- Pantalla principal -->
+    <string name="main_url_label">Pega un enlace</string>
+    <string name="main_url_invalid">Ingresa un enlace válido (http o https)</string>
+    <string name="main_clear_input">Borrar</string>
+    <string name="main_downloads">Descargas</string>
+    <string name="main_clear_finished">Limpiar</string>
+    <string name="main_empty">Aún no hay descargas</string>
+
+    <!-- Estados de una descarga -->
+    <string name="format_music">Música (MP3)</string>
+    <string name="format_video">Video (MP4)</string>
+    <string name="status_queued">En cola</string>
+    <string name="status_downloading">Descargando %1$d%%</string>
+    <string name="status_downloading_eta">Descargando %1$d%% · %2$s restantes</string>
+    <string name="status_processing">Procesando…</string>
+    <string name="status_completed">Completada</string>
+    <string name="status_failed">Error</string>
+    <string name="status_failed_detail">Error: %1$s</string>
+    <string name="status_canceled">Cancelada</string>
+    <string name="action_cancel">Cancelar descarga</string>
+    <string name="action_retry">Reintentar</string>
+
+    <!-- Motor de descarga (yt-dlp) -->
+    <string name="engine_label">Motor de descarga: %1$s</string>
+    <string name="engine_unknown">sin iniciar</string>
+    <string name="engine_update">Actualizar</string>
+    <string name="engine_updating">Actualizando…</string>
+    <string name="engine_updated">Motor actualizado</string>
+    <string name="engine_up_to_date">Ya tienes la última versión</string>
+    <string name="engine_update_failed">No se pudo actualizar</string>
+</resources>

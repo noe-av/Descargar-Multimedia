@@ -1,0 +1,72 @@
+name: Build APK
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+    paths-ignore: ["**.md"]
+  workflow_dispatch:
+
+# Solo se dispara con push y manualmente: un fork no puede ejecutar código en tu servidor.
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    # Corre en tu propio servidor (runner con la etiqueta "descargar-multimedia-ci").
+    runs-on: [self-hosted, descargar-multimedia-ci]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      # En los runners de GitHub el SDK de Android ya viene instalado; en tu servidor hay que instalarlo.
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: "platforms;android-35 build-tools;34.0.0"
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.10.2
+          # El servidor es persistente: conserva ~/.gradle entre ejecuciones, no hace falta el caché de GitHub.
+          cache-disabled: true
+
+      - name: Pruebas unitarias
+        run: gradle :app:testDebugUnitTest --no-daemon
+
+      - name: Compilar APK
+        run: gradle :app:assembleRelease --no-daemon
+
+      - name: Renombrar APK
+        run: cp app/build/outputs/apk/release/app-release.apk Descargar-Multimedia.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Descargar-Multimedia-apk
+          path: Descargar-Multimedia.apk
+          retention-days: 30
+
+  release:
+    # Solo cuando subes una etiqueta que empieza con "v" (por ejemplo v1.0).
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: [self-hosted, descargar-multimedia-ci]
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: Descargar-Multimedia-apk
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: Descargar-Multimedia.apk
