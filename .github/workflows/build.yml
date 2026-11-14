@@ -7,18 +7,18 @@ on:
     paths-ignore: ["**.md"]
   workflow_dispatch:
 
-# Solo se dispara con push y manualmente: un fork no puede ejecutar código en tu servidor.
 permissions:
   contents: read
 
+# Si subes otro cambio mientras compila, se cancela la compilación anterior.
 concurrency:
   group: build-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   build:
-    # Corre en tu propio servidor (runner con la etiqueta "descargar-multimedia-ci").
-    runs-on: [self-hosted, descargar-multimedia-ci]
+    # Runner alojado por GitHub: ya trae el SDK de Android, git, unzip y curl.
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -28,16 +28,9 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      # En los runners de GitHub el SDK de Android ya viene instalado; en tu servidor hay que instalarlo.
-      - uses: android-actions/setup-android@v3
-        with:
-          packages: "platforms;android-35 build-tools;34.0.0"
-
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.10.2
-          # El servidor es persistente: conserva ~/.gradle entre ejecuciones, no hace falta el caché de GitHub.
-          cache-disabled: true
 
       - name: Pruebas unitarias
         run: gradle :app:testDebugUnitTest --no-daemon
@@ -58,7 +51,7 @@ jobs:
     # Solo cuando subes una etiqueta que empieza con "v" (por ejemplo v1.0).
     if: startsWith(github.ref, 'refs/tags/v')
     needs: build
-    runs-on: [self-hosted, descargar-multimedia-ci]
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: write
