@@ -216,7 +216,9 @@ private fun DownloadRow(item: DownloadItem, onCancel: () -> Unit, onRetry: () ->
                             .fillMaxWidth()
                             .padding(top = 8.dp, end = 12.dp),
                     )
-                    DownloadStatus.PROCESSING -> LinearProgressIndicator(
+                    DownloadStatus.SEARCHING,
+                    DownloadStatus.PROCESSING,
+                    -> LinearProgressIndicator(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 8.dp, end = 12.dp),
@@ -227,6 +229,7 @@ private fun DownloadRow(item: DownloadItem, onCancel: () -> Unit, onRetry: () ->
 
             when (item.status) {
                 DownloadStatus.QUEUED,
+                DownloadStatus.SEARCHING,
                 DownloadStatus.DOWNLOADING,
                 DownloadStatus.PROCESSING,
                 -> IconButton(onClick = onCancel) {
@@ -237,6 +240,7 @@ private fun DownloadRow(item: DownloadItem, onCancel: () -> Unit, onRetry: () ->
                 }
                 DownloadStatus.FAILED,
                 DownloadStatus.CANCELED,
+                DownloadStatus.NOT_FOUND,
                 -> IconButton(onClick = onRetry) {
                     Icon(
                         imageVector = Icons.Filled.Refresh,
@@ -256,6 +260,7 @@ private fun statusText(item: DownloadItem): String {
     )
     val status = when (item.status) {
         DownloadStatus.QUEUED -> stringResource(R.string.status_queued)
+        DownloadStatus.SEARCHING -> stringResource(R.string.status_searching)
         DownloadStatus.DOWNLOADING -> {
             val percent = item.progress.toInt()
             val eta = item.etaSeconds
@@ -276,6 +281,7 @@ private fun statusText(item: DownloadItem): String {
             }
         }
         DownloadStatus.CANCELED -> stringResource(R.string.status_canceled)
+        DownloadStatus.NOT_FOUND -> stringResource(R.string.status_not_found)
     }
     return "$format · $status"
 }

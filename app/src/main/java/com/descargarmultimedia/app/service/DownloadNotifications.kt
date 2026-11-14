@@ -108,11 +108,16 @@ object DownloadNotifications {
                 )
                 .setContentIntent(openAppIntent(context))
                 .build()
+            DownloadStatus.NOT_FOUND -> builder
+                .setContentTitle(context.getString(R.string.notif_not_found_title))
+                .setContentIntent(openAppIntent(context))
+                .build()
             else -> null // cancelada u otro estado: sin aviso
         }
     }
 
     private fun progressLine(context: Context, item: DownloadItem): String = when {
+        item.status == DownloadStatus.SEARCHING -> context.getString(R.string.notif_searching)
         item.status == DownloadStatus.PROCESSING -> context.getString(R.string.notif_processing)
         item.progress <= 0f -> context.getString(R.string.notif_preparing)
         item.etaSeconds != null -> context.getString(

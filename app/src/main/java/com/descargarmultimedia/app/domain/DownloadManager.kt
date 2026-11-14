@@ -22,10 +22,13 @@ class DownloadManager(
         if (wasRunning) downloader.cancel(id)
     }
 
-    /** Vuelve a encolar una descarga fallida o cancelada. */
+    /** Vuelve a encolar una descarga fallida, cancelada o cuya canción no se encontró. */
     fun retry(id: String): DownloadItem? {
         val item = queue.find(id) ?: return null
-        if (item.status != DownloadStatus.FAILED && item.status != DownloadStatus.CANCELED) return null
+        val canRetry = item.status == DownloadStatus.FAILED ||
+            item.status == DownloadStatus.CANCELED ||
+            item.status == DownloadStatus.NOT_FOUND
+        if (!canRetry) return null
         queue.remove(id)
         return queue.enqueue(item.url, item.format)
     }

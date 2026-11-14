@@ -3,6 +3,7 @@ package com.descargarmultimedia.app.di
 import android.content.Context
 import com.descargarmultimedia.app.DescargarMultimediaApp
 import com.descargarmultimedia.app.data.engine.YtDlpDownloader
+import com.descargarmultimedia.app.data.engine.YtDlpSongFinder
 import com.descargarmultimedia.app.data.storage.MediaStoreSaver
 import com.descargarmultimedia.app.domain.DownloadManager
 import com.descargarmultimedia.app.domain.DownloadProcessor
@@ -32,6 +33,7 @@ class AppContainer(context: Context) {
     val downloadProcessor = DownloadProcessor(
         queue = downloadQueue,
         downloader = downloader,
+        songFinder = YtDlpSongFinder(),
         saver = MediaStoreSaver(appContext),
         workRoot = workRoot,
     )

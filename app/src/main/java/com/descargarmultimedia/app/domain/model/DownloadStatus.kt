@@ -2,15 +2,21 @@ package com.descargarmultimedia.app.domain.model
 
 enum class DownloadStatus {
     QUEUED,
+
+    /** Averiguando qué canción suena en un video corto y buscando su versión completa. */
+    SEARCHING,
     DOWNLOADING,
     PROCESSING,
     COMPLETED,
     FAILED,
-    CANCELED;
+    CANCELED,
+
+    /** La canción del video corto no se pudo identificar o no existe completa: no se descargó nada. */
+    NOT_FOUND;
 
     /** Estados finales: una descarga en uno de ellos ya no cambia. */
     val isTerminal: Boolean
-        get() = this == COMPLETED || this == FAILED || this == CANCELED
+        get() = this == COMPLETED || this == FAILED || this == CANCELED || this == NOT_FOUND
 
     val isActive: Boolean
         get() = !isTerminal

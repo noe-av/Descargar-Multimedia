@@ -11,4 +11,6 @@ Usa [yt-dlp](https://github.com/yt-dlp/yt-dlp) y FFmpeg a través de [youtubedl-
 3. En la ventana emergente elige **Música** (MP3) o **Video** (MP4).
 4. Sigue el progreso en la notificación. Los archivos quedan en **Música/Descargar Multimedia** y **Descargas/Descargar Multimedia**.
 
+Si compartes un short, reel o TikTok, no se descarga el video corto: la app busca la **canción completa** que suena en él (si no la encuentra, avisa y no descarga nada).
+
 También puedes abrir la app, pegar un enlace y ver la cola de descargas. Si un sitio deja de funcionar, toca **Actualizar** al pie de la pantalla.

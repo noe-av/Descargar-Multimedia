@@ -1,5 +1,6 @@
 package com.descargarmultimedia.app.data.engine
 
+import com.descargarmultimedia.app.data.storage.FileNames
 import com.descargarmultimedia.app.domain.model.DownloadFormat
 import com.descargarmultimedia.app.domain.model.DownloadRequest
 import com.yausername.youtubedl_android.YoutubeDLRequest
@@ -25,7 +26,7 @@ internal object YtDlpArguments {
         ytRequest.addOption("--windows-filenames")
         ytRequest.addOption("--trim-filenames", 120)
         ytRequest.addOption("--concurrent-fragments", 4)
-        ytRequest.addOption("-o", File(request.outputDir, "%(title)s.%(ext)s").absolutePath)
+        ytRequest.addOption("-o", File(request.outputDir, fileNameTemplate(request)).absolutePath)
 
         when (request.format) {
             DownloadFormat.AUDIO -> {
@@ -41,5 +42,12 @@ internal object YtDlpArguments {
             }
         }
         return ytRequest
+    }
+
+    /** Con nombre propio ("Artista - Canción") se usa tal cual; si no, el título del video. */
+    private fun fileNameTemplate(request: DownloadRequest): String {
+        val name = request.outputName ?: return "%(title)s.%(ext)s"
+        // En una plantilla de yt-dlp un "%" literal se escribe "%%".
+        return FileNames.sanitizeBase(name).replace("%", "%%") + ".%(ext)s"
     }
 }

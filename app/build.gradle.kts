@@ -12,8 +12,8 @@ android {
         applicationId = "com.descargarmultimedia.app"
         minSdk = 30 // Android 11
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.1.0"
 
         // Solo arm64: cubre prácticamente todos los celulares con Android 11+
         // y reduce mucho el tamaño (yt-dlp trae Python y FFmpeg dentro).
