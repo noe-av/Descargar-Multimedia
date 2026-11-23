@@ -11,6 +11,8 @@ Usa [yt-dlp](https://github.com/yt-dlp/yt-dlp) y FFmpeg a través de [youtubedl-
 3. En la ventana emergente elige **Música** (MP3) o **Video** (MP4).
 4. Sigue el progreso en la notificación. Los archivos quedan en **Música/Descargar Multimedia** y **Descargas/Descargar Multimedia**.
 
-Si compartes un short, reel o TikTok, no se descarga el video corto: la app busca la **canción completa** que suena en él (si no la encuentra, avisa y no descarga nada).
+Con **Música** desde YouTube se descarga el audio de ese mismo video. Desde TikTok, Instagram, Facebook y similares, la app busca la **canción completa** que suena (si no la encuentra, avisa y no descarga nada). Con **Video**, un short, reel o TikTok también se reemplaza por el videoclip de la canción.
 
-También puedes abrir la app, pegar un enlace y ver la cola de descargas. Si un sitio deja de funcionar, toca **Actualizar** al pie de la pantalla.
+La app mantiene yt-dlp al día sola: se actualiza cada día y, si una descarga falla, se actualiza y reintenta automáticamente. No hace falta abrirla.
+
+También puedes abrir la app, pegar un enlace y ver la cola de descargas. El botón **Actualizar** al pie de la pantalla fuerza la actualización a mano.

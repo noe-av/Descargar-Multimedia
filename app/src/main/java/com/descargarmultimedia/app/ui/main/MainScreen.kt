@@ -216,6 +216,7 @@ private fun DownloadRow(item: DownloadItem, onCancel: () -> Unit, onRetry: () ->
                             .fillMaxWidth()
                             .padding(top = 8.dp, end = 12.dp),
                     )
+                    DownloadStatus.UPDATING,
                     DownloadStatus.SEARCHING,
                     DownloadStatus.PROCESSING,
                     -> LinearProgressIndicator(
@@ -229,6 +230,7 @@ private fun DownloadRow(item: DownloadItem, onCancel: () -> Unit, onRetry: () ->
 
             when (item.status) {
                 DownloadStatus.QUEUED,
+                DownloadStatus.UPDATING,
                 DownloadStatus.SEARCHING,
                 DownloadStatus.DOWNLOADING,
                 DownloadStatus.PROCESSING,
@@ -260,6 +262,7 @@ private fun statusText(item: DownloadItem): String {
     )
     val status = when (item.status) {
         DownloadStatus.QUEUED -> stringResource(R.string.status_queued)
+        DownloadStatus.UPDATING -> stringResource(R.string.status_updating)
         DownloadStatus.SEARCHING -> stringResource(R.string.status_searching)
         DownloadStatus.DOWNLOADING -> {
             val percent = item.progress.toInt()

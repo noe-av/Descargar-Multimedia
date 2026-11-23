@@ -65,7 +65,7 @@ class DownloadProcessorTest {
             onProgress(DownloadProgress(40f, 12, "Mi video", false))
             fileIn(request, "Mi video.mp4")
         }
-        val processor = DownloadProcessor(queue, downloader, NoSongFinder, saver, workRoot)
+        val processor = DownloadProcessor(queue, downloader, freshUpdater(downloader), NoSongFinder, saver, workRoot)
         queue.enqueue("https://a.com/1", DownloadFormat.VIDEO)
         val item = queue.claimNext()!!
 
@@ -83,7 +83,7 @@ class DownloadProcessorTest {
     fun `un error del motor deja la descarga como fallida con su mensaje`() = runBlocking {
         val queue = DownloadQueue()
         val downloader = FakeDownloader { _, _ -> throw DownloadFailedException("Video no disponible") }
-        val processor = DownloadProcessor(queue, downloader, NoSongFinder, FakeSaver(), workRoot)
+        val processor = DownloadProcessor(queue, downloader, freshUpdater(downloader), NoSongFinder, FakeSaver(), workRoot)
         queue.enqueue("https://a.com/1", DownloadFormat.AUDIO)
         val item = queue.claimNext()!!
 
@@ -99,7 +99,7 @@ class DownloadProcessorTest {
     fun `una cancelacion queda como cancelada y no como error`() = runBlocking {
         val queue = DownloadQueue()
         val downloader = FakeDownloader { _, _ -> throw DownloadCanceledException() }
-        val processor = DownloadProcessor(queue, downloader, NoSongFinder, FakeSaver(), workRoot)
+        val processor = DownloadProcessor(queue, downloader, freshUpdater(downloader), NoSongFinder, FakeSaver(), workRoot)
         queue.enqueue("https://a.com/1", DownloadFormat.VIDEO)
         val item = queue.claimNext()!!
 

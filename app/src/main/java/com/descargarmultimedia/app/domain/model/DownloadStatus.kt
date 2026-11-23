@@ -3,6 +3,9 @@ package com.descargarmultimedia.app.domain.model
 enum class DownloadStatus {
     QUEUED,
 
+    /** Actualizando yt-dlp (una vez al día, o tras un fallo) antes de descargar o reintentar. */
+    UPDATING,
+
     /** Averiguando qué canción suena en un video corto y buscando su versión completa. */
     SEARCHING,
     DOWNLOADING,

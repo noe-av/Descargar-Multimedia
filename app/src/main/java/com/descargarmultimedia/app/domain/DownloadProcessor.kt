@@ -9,13 +9,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
- * Ejecuta UNA descarga de principio a fin: si el enlace es de un video corto busca la
- * canción completa, descarga en una carpeta temporal, guarda el resultado y deja el
- * estado final en la cola.
+ * Ejecuta UNA descarga de principio a fin: mantiene yt-dlp al día, busca la canción
+ * completa si hace falta, descarga en una carpeta temporal, guarda el resultado y deja
+ * el estado final en la cola.
  */
 class DownloadProcessor(
     private val queue: DownloadQueue,
     private val downloader: MediaDownloader,
+    private val engineUpdater: EngineUpdater,
     private val songFinder: SongFinder,
     private val saver: MediaSaver,
     private val workRoot: File,
@@ -28,15 +29,9 @@ class DownloadProcessor(
         try {
             workDir.mkdirs()
             downloader.ensureReady()
+            refreshEngineIfStale(item)
 
-            val source = resolveSource(item)
-            throwIfCanceled(item.id)
-
-            val file = downloader.download(
-                DownloadRequest(item.id, source.url, item.format, workDir, source.fileName),
-            ) { progress ->
-                queue.update(item.id) { it.withProgress(progress) }
-            }
+            val file = downloadWithRetry(item, workDir)
 
             throwIfCanceled(item.id)
             queue.update(item.id) {
@@ -74,9 +69,54 @@ class DownloadProcessor(
         }
     }
 
-    /** Un video normal se descarga tal cual; uno corto se reemplaza por su canción completa. */
+    /** Si pasó más de un día desde la última actualización de yt-dlp, la hace antes de empezar. */
+    private suspend fun refreshEngineIfStale(item: DownloadItem) {
+        if (!engineUpdater.isStale()) return
+        queue.update(item.id) { it.copy(status = DownloadStatus.UPDATING) }
+        engineUpdater.refreshIfStale()
+        throwIfCanceled(item.id)
+    }
+
+    /**
+     * Descarga. Si el motor falla, lo actualiza y reintenta UNA sola vez: lo más común es
+     * que el sitio haya cambiado y el yt-dlp instalado ya no lo entienda. El usuario no
+     * tiene que hacer nada.
+     */
+    private suspend fun downloadWithRetry(item: DownloadItem, workDir: File): File =
+        try {
+            downloadOnce(item, workDir)
+        } catch (e: DownloadFailedException) {
+            throwIfCanceled(item.id)
+            queue.update(item.id) {
+                it.copy(status = DownloadStatus.UPDATING, progress = 0f, etaSeconds = null)
+            }
+            if (!engineUpdater.refreshAfterFailure()) throw e
+            throwIfCanceled(item.id)
+
+            workDir.deleteRecursively() // restos de la descarga fallida
+            workDir.mkdirs()
+            downloadOnce(item, workDir)
+        }
+
+    private suspend fun downloadOnce(item: DownloadItem, workDir: File): File {
+        queue.update(item.id) {
+            it.copy(status = DownloadStatus.DOWNLOADING, progress = 0f, etaSeconds = null)
+        }
+        val source = resolveSource(item)
+        throwIfCanceled(item.id)
+
+        return downloader.download(
+            DownloadRequest(item.id, source.url, item.format, workDir, source.fileName),
+        ) { progress ->
+            queue.update(item.id) { it.withProgress(progress) }
+        }
+    }
+
+    /** Descarga el enlace tal cual, o lo reemplaza por la canción completa si así corresponde. */
     private suspend fun resolveSource(item: DownloadItem): Source {
-        if (!ShortLinks.isShort(item.url)) return Source(item.url, fileName = null)
+        if (!SongSearchPolicy.shouldSearchSong(item.url, item.format)) {
+            return Source(item.url, fileName = null)
+        }
 
         queue.update(item.id) { it.copy(status = DownloadStatus.SEARCHING) }
         val match = songFinder.findFullSong(item.id, item.url, item.format)

@@ -9,6 +9,7 @@
     <string name="notif_downloading">Descargando %1$d%%</string>
     <string name="notif_downloading_eta">Descargando %1$d%% · %2$s restantes</string>
     <string name="notif_processing">Procesando…</string>
+    <string name="notif_updating">Preparando la descarga…</string>
     <string name="notif_searching">Buscando la canción…</string>
     <string name="notif_not_found_title">No se encontró la canción</string>
     <string name="notif_queued_more">%1$d en cola</string>
@@ -45,6 +46,7 @@
     <string name="status_failed">Error</string>
     <string name="status_failed_detail">Error: %1$s</string>
     <string name="status_canceled">Cancelada</string>
+    <string name="status_updating">Preparando…</string>
     <string name="status_searching">Buscando la canción…</string>
     <string name="status_not_found">No se encontró la canción</string>
     <string name="action_cancel">Cancelar descarga</string>

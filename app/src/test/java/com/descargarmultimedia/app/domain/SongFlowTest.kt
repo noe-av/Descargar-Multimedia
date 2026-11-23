@@ -68,7 +68,7 @@ class SongFlowTest {
         val downloader = RecordingDownloader()
         val saver = RecordingSaver()
         val finder = ScriptedFinder { id, format -> script(queue, id, format) }
-        private val processor = DownloadProcessor(queue, downloader, finder, saver, workRoot)
+        private val processor = DownloadProcessor(queue, downloader, freshUpdater(downloader), finder, saver, workRoot)
 
         fun process(url: String, format: DownloadFormat = DownloadFormat.AUDIO): DownloadItem = runBlocking {
             val item = queue.enqueue(url, format)
@@ -181,5 +181,50 @@ class SongFlowTest {
         h.queue.markCanceled(retried.id)
         h.queue.clearFinished()
         assertTrue(h.queue.items.value.isEmpty())
+    }
+
+    @Test
+    fun `musica desde un short de youtube descarga el audio de ese mismo video`() {
+        val h = Harness { _, _, _ -> throw AssertionError("no debía buscar") }
+        val url = "https://www.youtube.com/shorts/abc123"
+
+        val result = h.process(url, DownloadFormat.AUDIO)
+
+        assertTrue(h.finder.calls.isEmpty())
+        assertEquals(url, h.downloader.requests.single().url)
+        assertEquals(DownloadStatus.COMPLETED, result.status)
+    }
+
+    @Test
+    fun `video desde un short de youtube busca la cancion`() {
+        val h = Harness { _, _, _ -> match }
+        val url = "https://www.youtube.com/shorts/abc123"
+
+        h.process(url, DownloadFormat.VIDEO)
+
+        assertEquals(listOf(url), h.finder.calls)
+        assertEquals(match.url, h.downloader.requests.single().url)
+    }
+
+    @Test
+    fun `musica desde un enlace normal de otra red social busca la cancion`() {
+        val h = Harness { _, _, _ -> match }
+        val url = "https://www.facebook.com/watch/?v=123456"
+
+        h.process(url, DownloadFormat.AUDIO)
+
+        assertEquals(listOf(url), h.finder.calls)
+        assertEquals(match.url, h.downloader.requests.single().url)
+    }
+
+    @Test
+    fun `video normal de otra red social se descarga tal cual`() {
+        val h = Harness { _, _, _ -> throw AssertionError("no debía buscar") }
+        val url = "https://www.facebook.com/watch/?v=123456"
+
+        h.process(url, DownloadFormat.VIDEO)
+
+        assertTrue(h.finder.calls.isEmpty())
+        assertEquals(url, h.downloader.requests.single().url)
     }
 }

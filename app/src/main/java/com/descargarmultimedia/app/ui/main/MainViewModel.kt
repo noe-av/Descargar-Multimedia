@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.descargarmultimedia.app.di.AppContainer
 import com.descargarmultimedia.app.domain.DownloadManager
 import com.descargarmultimedia.app.domain.EngineUpdateResult
+import com.descargarmultimedia.app.domain.EngineUpdater
 import com.descargarmultimedia.app.domain.MediaDownloader
 import com.descargarmultimedia.app.domain.model.DownloadFormat
 import com.descargarmultimedia.app.domain.model.DownloadItem
@@ -32,6 +33,7 @@ data class MainUiState(
 class MainViewModel(
     private val downloads: DownloadManager,
     private val downloader: MediaDownloader,
+    private val engineUpdater: EngineUpdater,
 ) : ViewModel() {
 
     val items: StateFlow<List<DownloadItem>> = downloads.items
@@ -70,7 +72,7 @@ class MainViewModel(
         _uiState.update { it.copy(isUpdatingEngine = true) }
         viewModelScope.launch {
             val message = try {
-                when (downloader.updateEngine()) {
+                when (engineUpdater.updateNow()) {
                     EngineUpdateResult.UPDATED -> EngineMessage.UPDATED
                     EngineUpdateResult.ALREADY_UP_TO_DATE -> EngineMessage.UP_TO_DATE
                 }
@@ -98,7 +100,7 @@ class MainViewModel(
             object : ViewModelProvider.Factory {
                 @Suppress("UNCHECKED_CAST")
                 override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                    MainViewModel(container.downloadManager, container.downloader) as T
+                    MainViewModel(container.downloadManager, container.downloader, container.engineUpdater) as T
             }
     }
 }
